@@ -87,12 +87,62 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # a LIFO stack 
+    frontier = util.Stack()
+
+    # a set to track visited nodes
+    visited = set()
+
+    # add state to the stack and initial empty list for the path
+    frontier.push((problem.getStartState(), []))
+
+    while not frontier.isEmpty():
+        # chooses the shallowest node in the frontier
+        node, path = frontier.pop()
+
+        # check if the node is a goal state
+        if (problem.isGoalState(node)):
+            return path
+
+        # add node to the visited set if it has not been visited
+        if node not in visited:
+            visited.add(node)
+
+            # explore node's successors
+            for successor, action, stepCost in problem.getSuccessors(node):
+                frontier.push((successor, path + [action]))                    
+
+    return None
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # a FIFO queue 
+    frontier = util.Queue()
+
+    # a set to track visited nodes
+    visited = set()
+
+    # add state to the queue and initial empty list for the path
+    frontier.push((problem.getStartState(), []))
+
+    while not frontier.isEmpty():
+        # chooses the shallowest node in the frontier
+        node, path = frontier.pop()
+
+        # check if the node is a goal state
+        if (problem.isGoalState(node)):
+            return path
+
+        # add node to the visited set if it has not been visited 
+        if node not in visited:
+            visited.add(node)
+
+            # explore node's successors
+            for successor, action, stepCost in problem.getSuccessors(node):
+                frontier.push((successor, path + [action]))                    
+
+    return None
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
