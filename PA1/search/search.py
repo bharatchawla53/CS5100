@@ -61,7 +61,6 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
-
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -185,7 +184,36 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # a priority queue to track varying cost for each path
+    frontier = util.PriorityQueue()
+
+    # a set to track visited nodes
+    visited = set()
+
+    # calculate heuristic cost 
+    heuristicCost = heuristic(problem.getStartState(), problem)
+    # add state to the queue, initial empty list for the path, and cost so far for the priority queue to maintain
+    frontier.push((problem.getStartState(), [], 0), 0 + heuristicCost)
+
+    while not frontier.isEmpty():
+        # chooses the lowest-cost node 
+        node, path, cost = frontier.pop()
+
+        # check if the node is a goal state
+        if (problem.isGoalState(node)):
+            return path
+
+        # add node to the visited set if it has not been visited 
+        if node not in visited:
+            visited.add(node)
+
+            # explore node's successors
+            for successor, action, stepCost in problem.getSuccessors(node):
+                # update frontier if child is in frontier with higher path cost (cost + heuristic cost), else update will insert it to the priority queue
+                heuristicCost = heuristic(successor, problem)
+                frontier.update((successor, path + [action], cost + stepCost), cost + stepCost + heuristicCost)
+
+    return None
 
 
 # Abbreviations
