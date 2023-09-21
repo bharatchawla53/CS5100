@@ -90,7 +90,7 @@ def depthFirstSearch(problem: SearchProblem):
     frontier = util.Stack()
 
     # a set to track visited nodes
-    visited = set()
+    visited = []
 
     # add state to the stack and initial empty list for the path
     frontier.push((problem.getStartState(), []))
@@ -105,7 +105,7 @@ def depthFirstSearch(problem: SearchProblem):
 
         # add node to the visited set if it has not been visited
         if node not in visited:
-            visited.add(node)
+            visited.append(node)
 
             # explore node's successors
             for successor, action, stepCost in problem.getSuccessors(node):
@@ -120,7 +120,7 @@ def breadthFirstSearch(problem: SearchProblem):
     frontier = util.Queue()
 
     # a set to track visited nodes
-    visited = set()
+    visited = []
 
     # add state to the queue and initial empty list for the path
     frontier.push((problem.getStartState(), []))
@@ -135,7 +135,7 @@ def breadthFirstSearch(problem: SearchProblem):
 
         # add node to the visited set if it has not been visited 
         if node not in visited:
-            visited.add(node)
+            visited.append(node)
 
             # explore node's successors
             for successor, action, stepCost in problem.getSuccessors(node):
@@ -150,7 +150,7 @@ def uniformCostSearch(problem: SearchProblem):
     frontier = util.PriorityQueue()
 
     # a set to track visited nodes
-    visited = set()
+    visited = []
 
     # add state to the queue, initial empty list for the path, and cost so far for the priority queue to maintain
     frontier.push((problem.getStartState(), [], 0), 0)
@@ -165,7 +165,7 @@ def uniformCostSearch(problem: SearchProblem):
 
         # add node to the visited set if it has not been visited 
         if node not in visited:
-            visited.add(node)
+            visited.append(node)
 
             # explore node's successors
             for successor, action, stepCost in problem.getSuccessors(node):
@@ -188,7 +188,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     frontier = util.PriorityQueue()
 
     # a set to track visited nodes
-    visited = set()
+    visited = []
 
     # calculate heuristic cost 
     heuristicCost = heuristic(problem.getStartState(), problem)
@@ -205,7 +205,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
         # add node to the visited set if it has not been visited 
         if node not in visited:
-            visited.add(node)
+            visited.append(node)
 
             # explore node's successors
             for successor, action, stepCost in problem.getSuccessors(node):
@@ -214,7 +214,6 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
                 frontier.update((successor, path + [action], cost + stepCost), cost + stepCost + heuristicCost)
 
     return None
-
 
 # Abbreviations
 bfs = breadthFirstSearch
