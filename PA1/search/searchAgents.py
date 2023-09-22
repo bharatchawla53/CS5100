@@ -309,14 +309,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         
         # found all the corners
-        if (len(state[1]) == len(self.corners)):
-            return True
-        
-        # if the state is in corners and not has been added/visited, then append it to the list
-        if (state[0] in self.corners) and (state[0] not in state[1]):
-            state[1].append(state[0])
-
-        return False
+        return (len(state[1]) == len(self.corners))
 
     def getSuccessors(self, state: Any):
         """
