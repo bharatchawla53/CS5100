@@ -511,7 +511,42 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    # maximum dots to eat on a given path
+    heuristicCost = 0
+
+    # list of food coordinates
+    foodList = foodGrid.asList()
+
+    # starting game state for calculating maze distance 
+    startingGameState = problem.startingGameState
+
+    while len(foodList) != 0:
+        # store distances to food item from a given state
+        distances = []
+
+        # loop through food list where the coordinates are true to find the maximum maze distance for a given state
+        for food in foodList:
+
+            # calculate maze distance between the pacman's position and where the food lies in the maze
+            d = mazeDistance(position, food, startingGameState)
+
+            # append calculated distance with its food position as a tuple
+            distances.append((d, food))
+
+        # check if the calculated maze distance is greater than to what we have already maximized
+        d, p = max(distances)
+        
+        if d > heuristicCost:
+            heuristicCost = d
+
+        # set the position to the next food position
+        position = p
+
+        # remove that food position since it's already visited
+        foodList.remove(p)
+
+    return heuristicCost
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -542,7 +577,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # run ucs on the problem to find the closest dot
+        return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -578,7 +614,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # if x,y has food return true, else false 
+        return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
