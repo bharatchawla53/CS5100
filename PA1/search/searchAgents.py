@@ -41,7 +41,9 @@ from game import Actions
 import util
 import time
 import search
+import sys
 import pacman
+
 
 class GoWestAgent(Agent):
     "An agent that goes West until it can't."
@@ -340,7 +342,7 @@ class CornersProblem(search.SearchProblem):
                 nextState = (nextx, nexty)
                 visitedCorners = state[1].copy()
 
-                # if next state is in corners and not has been added/visited, then append it to the list
+                # if next state is in corners and has not been added/visited, then append it to the list
                 if (nextState in self.corners) and (nextState not in visitedCorners):
                     visitedCorners.append(nextState)
                 
@@ -380,7 +382,42 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # current node
+    node = state[0]
+
+    # track visited corners
+    visitedCorners = state[1].copy()
+
+    # minimum cost from the state to a goal
+    heuristicCost = 0
+
+    # loop until all the corners distances have been calculated
+    while len(visitedCorners) != len(corners):
+        # store distances to remaining corners from a given state
+        cornerDistances = []
+
+        for corner in corners:
+            if corner not in visitedCorners:
+
+                # calculate manhattan distance i.e. h(s)
+                distance = util.manhattanDistance(node, corner)
+
+                # append calculated distance with its corner as a tuple
+                cornerDistances.append((distance, corner))
+
+        # find the minimum distance with its corner
+        d, c = min(cornerDistances)
+
+        # append minimum distance to the total cost for the entire path
+        heuristicCost += d
+
+        # set the current node to the next corner
+        node = c
+
+        # mark the node as visited
+        visitedCorners.append(node)
+
+    return heuristicCost
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
