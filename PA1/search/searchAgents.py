@@ -301,6 +301,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        
         # start state consists of pacman's position and a list to track all the visited corners
         return (self.startingPosition, [])
 
@@ -382,10 +383,11 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+    
     # current node
     node = state[0]
 
-    # track visited corners
+    # track visited corners without modifying the actual game state to look forward
     visitedCorners = state[1].copy()
 
     # minimum cost from the state to a goal
@@ -534,9 +536,10 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
             # append calculated distance with its food position as a tuple
             distances.append((d, food))
 
-        # check if the calculated maze distance is greater than to what we have already maximized
+        # get the max distance and food position
         d, p = max(distances)
         
+        # update if the calculated maze distance is greater than to what we have already maximized
         if d > heuristicCost:
             heuristicCost = d
 
@@ -577,6 +580,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+        
         # run ucs on the problem to find the closest dot
         return search.uniformCostSearch(problem)
 
@@ -614,6 +618,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
+        
         # if x,y has food return true, else false 
         return self.food[x][y]
 
