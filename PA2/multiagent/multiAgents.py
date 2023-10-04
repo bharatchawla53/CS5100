@@ -13,6 +13,8 @@
 
 
 from math import dist, inf
+from sre_constants import SUCCESS
+from telnetlib import GA
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -145,6 +147,43 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
+    
+    def minimax(self, gameState: GameState, agentIndex, depth):
+ 
+        # check if the game state is a terminal state
+        if (gameState.isWin() or gameState.isLose() or depth == self.depth):
+            return self.evaluationFunction(gameState)
+            
+        # check if the next agent is PACMAN i.e. agentIndex = 0, else ghosts
+        if (agentIndex == 0):
+            return self.maxValue(gameState, agentIndex, depth)
+        else:
+            return self.minValue(gameState, agentIndex, depth)
+            
+    def maxValue(self, gameState: GameState, agentIndex, depth):
+        v = -float(inf)
+
+        for action in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, action)
+            v = max(v, self.minimax(successor, agentIndex + 1, depth))
+             
+        return v
+                
+    def minValue(self, gameState: GameState, agentIndex, depth):
+        v = float(inf)
+            
+        # check if agentIndex has reached max agents and if so, set the index back to pacman
+        nextAgent = agentIndex + 1
+        if (nextAgent == gameState.getNumAgents()):
+            nextAgent = 0
+            depth = depth + 1
+                
+        for action in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, action)
+            v = min(v, self.minimax(successor, nextAgent, depth))
+            
+        return v
+        
 
     def getAction(self, gameState: GameState):
         """
@@ -170,7 +209,29 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
+        # agent's index that we are evaluating i.e. PACMAN
+        agentIndex = self.index; 
+        
+        # track optimal action and score
+        action = ""
+        score = -float(inf)
+        
+        # loop over all the legal moves to find the optimal action for the agent
+        for a in gameState.getLegalActions(agentIndex):
+            
+            # get the successor state for the agent and it's action
+            successor = gameState.generateSuccessor(agentIndex, a)
+            
+            # run minimax on next agent upto an arbitary depth
+            v = self.minimax(successor, agentIndex + 1, 0)
+
+            # update the score and action if better alternative found
+            if v > score:
+                score = v
+                action = a
+
+        return action
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
