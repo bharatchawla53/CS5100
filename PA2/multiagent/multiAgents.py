@@ -12,11 +12,8 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from math import dist, inf
-from sre_constants import SUCCESS
-from telnetlib import GA
-from util import manhattanDistance
-from game import Directions
+from math import inf
+from tkinter import CENTER
 import random, util
 
 from game import Agent
@@ -149,41 +146,53 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     
     def minimax(self, gameState: GameState, agentIndex, depth):
- 
+
         # check if the game state is a terminal state
         if (gameState.isWin() or gameState.isLose() or depth == self.depth):
-            return self.evaluationFunction(gameState)
-            
+            return "", self.evaluationFunction(gameState)
+
         # check if the next agent is PACMAN i.e. agentIndex = 0, else ghosts
         if (agentIndex == 0):
             return self.maxValue(gameState, agentIndex, depth)
         else:
             return self.minValue(gameState, agentIndex, depth)
-            
-    def maxValue(self, gameState: GameState, agentIndex, depth):
-        v = -float(inf)
 
-        for action in gameState.getLegalActions(agentIndex):
-            successor = gameState.generateSuccessor(agentIndex, action)
-            v = max(v, self.minimax(successor, agentIndex + 1, depth))
-             
-        return v
-                
-    def minValue(self, gameState: GameState, agentIndex, depth):
-        v = float(inf)
+    def maxValue(self, gameState: GameState, agentIndex, depth):
+        #v = -float(inf)
+        value = -float(inf)
+        action = ""
+
+        for a in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, a)
+            v = self.minimax(successor, agentIndex + 1, depth)[1]
             
+            if v > value:
+                value = v
+                action = a
+
+        return action, value
+
+    def minValue(self, gameState: GameState, agentIndex, depth):
+        #v = float(inf)
+        value = float(inf)
+        action = ""
+
         # check if agentIndex has reached max agents and if so, set the index back to pacman
         nextAgent = agentIndex + 1
         if (nextAgent == gameState.getNumAgents()):
             nextAgent = 0
             depth = depth + 1
-                
-        for action in gameState.getLegalActions(agentIndex):
-            successor = gameState.generateSuccessor(agentIndex, action)
-            v = min(v, self.minimax(successor, nextAgent, depth))
+
+        for a in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, a)
+            v = self.minimax(successor, nextAgent, depth)[1]
             
-        return v
-        
+            if v < value:
+                value = v
+                action = a
+
+        return action, value
+
 
     def getAction(self, gameState: GameState):
         """
@@ -211,27 +220,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         
         # agent's index that we are evaluating i.e. PACMAN
-        agentIndex = self.index; 
-        
-        # track optimal action and score
-        action = ""
-        score = -float(inf)
-        
-        # loop over all the legal moves to find the optimal action for the agent
-        for a in gameState.getLegalActions(agentIndex):
-            
-            # get the successor state for the agent and it's action
-            successor = gameState.generateSuccessor(agentIndex, a)
-            
-            # run minimax on next agent upto an arbitary depth
-            v = self.minimax(successor, agentIndex + 1, 0)
+        agentIndex = self.index
+        result = self.minimax(gameState, agentIndex, 0)
+        return result[0]
 
-            # update the score and action if better alternative found
-            if v > score:
-                score = v
-                action = a
-
-        return action
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -242,7 +234,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
  
         # check if the game state is a terminal state
         if (gameState.isWin() or gameState.isLose() or depth == self.depth):
-            return self.evaluationFunction(gameState)
+            return "", self.evaluationFunction(gameState)
             
         # check if the next agent is PACMAN i.e. agentIndex = 0, else ghosts
         if (agentIndex == 0):
@@ -251,21 +243,27 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             return self.minValue(gameState, agentIndex, depth, alpha, beta)
             
     def maxValue(self, gameState: GameState, agentIndex, depth, alpha, beta):
-        v = -float(inf)
+        value = -float(inf)
+        action = ""
 
-        for action in gameState.getLegalActions(agentIndex):
-            successor = gameState.generateSuccessor(agentIndex, action)
-            v = max(v, self.alphaBetaMinimax(successor, agentIndex + 1, depth, alpha, beta))
+        for a in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, a)
+            v = self.alphaBetaMinimax(successor, agentIndex + 1, depth, alpha, beta)[1]
             
-            if v > beta:
-                return v
+            if v > value:
+                value = v
+                action = a
             
-            alpha = max(alpha, v)
+            if value > beta:
+                return action, value
+            
+            alpha = max(alpha, value)
              
-        return v
+        return action, value
                 
     def minValue(self, gameState: GameState, agentIndex, depth, alpha, beta):
-        v = float(inf)
+        value = float(inf)
+        action = ""
             
         # check if agentIndex has reached max agents and if so, set the index back to pacman
         nextAgent = agentIndex + 1
@@ -273,16 +271,20 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             nextAgent = 0
             depth = depth + 1
                 
-        for action in gameState.getLegalActions(agentIndex):
-            successor = gameState.generateSuccessor(agentIndex, action)
-            v = min(v, self.alphaBetaMinimax(successor, nextAgent, depth, alpha, beta))
+        for a in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, a)
+            v = self.alphaBetaMinimax(successor, nextAgent, depth, alpha, beta)[1]
             
-            if v < alpha:
-                return v
+            if v < value:
+                value = v
+                action = a
             
-            beta = min(beta, v)
+            if value < alpha:
+                return action, value
             
-        return v
+            beta = min(beta, value)
+            
+        return action, value
 
     def getAction(self, gameState: GameState):
         """
@@ -299,30 +301,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # ghost's best option on path to root
         beta = float(inf)
         
-        # track optimal action and score
-        action = ""
-        score = -float(inf)
-        
-        # loop over all the legal moves to find the optimal action for the agent
-        for a in gameState.getLegalActions(agentIndex):
-            
-            # get the successor state for the agent and it's action
-            successor = gameState.generateSuccessor(agentIndex, a)
-            
-            # run alphaBeta on next agent upto an arbitary depth
-            v = self.alphaBetaMinimax(successor, agentIndex + 1, 0, alpha, beta)
-
-            # update the score and action if better alternative found
-            if v > score:
-                score = v
-                action = a
-                
-            if score > beta:
-                return score
-            
-            alpha = max(alpha, score)
-
-        return action
+        result = self.alphaBetaMinimax(gameState, agentIndex, 0, alpha, beta)
+        return result[0]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -333,7 +313,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
  
         # check if the game state is a terminal state
         if (gameState.isWin() or gameState.isLose() or depth == self.depth):
-            return self.evaluationFunction(gameState)
+            return "", self.evaluationFunction(gameState)
             
         # check if the next agent is PACMAN i.e. agentIndex = 0, else ghosts
         if (agentIndex == 0):
@@ -342,17 +322,23 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             return self.expValue(gameState, agentIndex, depth)
             
     def maxValue(self, gameState: GameState, agentIndex, depth):
-        v = -float(inf)
+        value = -float(inf)
+        action = ""
 
-        for action in gameState.getLegalActions(agentIndex):
-            successor = gameState.generateSuccessor(agentIndex, action)
-            v = max(v, self.expectiMax(successor, agentIndex + 1, depth))
+        for a in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, a)
+            v = self.expectiMax(successor, agentIndex + 1, depth)[1]
             
-        return v
+            if v > value:
+                value = v
+                action = a
+            
+        return action, value
                 
     def expValue(self, gameState: GameState, agentIndex, depth):
-        v = 0
-            
+        value = 0
+        action = ""
+                    
         # check if agentIndex has reached max agents and if so, set the index back to pacman
         nextAgent = agentIndex + 1
         if (nextAgent == gameState.getNumAgents()):
@@ -362,11 +348,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         # successor's probability
         p = 1.0 / float(len(gameState.getLegalActions(agentIndex)))
         
-        for action in gameState.getLegalActions(agentIndex):
-            successor = gameState.generateSuccessor(agentIndex, action)
-            v += p * self.expectiMax(successor, nextAgent, depth)
+        for a in gameState.getLegalActions(agentIndex):
+            successor = gameState.generateSuccessor(agentIndex, a)
+            value += p * self.expectiMax(successor, nextAgent, depth)[1]
             
-        return v
+        return action, value
 
     def getAction(self, gameState: GameState):
         """
@@ -378,27 +364,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         
         # agent's index that we are evaluating i.e. PACMAN
-        agentIndex = self.index; 
-        
-        # track optimal action and score
-        action = ""
-        score = -float(inf)
-        
-        # loop over all the legal moves to find the optimal action for the agent
-        for a in gameState.getLegalActions(agentIndex):
-            
-            # get the successor state for the agent and it's action
-            successor = gameState.generateSuccessor(agentIndex, a)
-            
-            # run expectiMax on next agent upto an arbitary depth
-            v = self.expectiMax(successor, agentIndex + 1, 0)
-
-            # update the score and action if better alternative found
-            if v > score:
-                score = v
-                action = a
-
-        return action
+        agentIndex = self.index
+        result = self.expectiMax(gameState, agentIndex, 0)
+        return result[0]
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
@@ -408,6 +376,8 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
+    
+
     util.raiseNotDefined()
 
 # Abbreviation
