@@ -373,12 +373,60 @@ def betterEvaluationFunction(currentGameState: GameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: For evaulating the states, I calculated the manhattan distance to closest and take the reciprocal of that when returning the score. 
+                 Additionally, I calculated the manhattan distance between the ghost state and pacman's state, and if distance is less than 2, I return -inf. 
+                 Lastly, I have considered to evaluate the ghost scared times and averaged it to return with pacman's score. 
     """
     "*** YOUR CODE HERE ***"
     
 
-    util.raiseNotDefined()
+    # Useful information you can extract from a GameState (pacman.py)
+
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+    "*** YOUR CODE HERE ***"
+        
+    # list of food coordinates
+    newFoodList = newFood.asList()
+
+    # store distances to food item from a given pacman's position
+    distances = []
+
+    # loop through food list where the coordinates are true to find the closest distance to food palet
+    for food in newFoodList:
+
+        # calculate manhattan distance between pacman's position and food position
+        d = util.manhattanDistance(food, newPos)
+
+        # append calculated distance
+        distances.append(d)
+
+    # get the min distance to the food
+    closestFood = float(inf)
+    if (len(distances) != 0):
+        closestFood = min(distances)
+        
+    # after calculating closest distance to food, check if there is a ghost close to pacman's location 
+    # and if so, return negative value for score
+    for ghostState in newGhostStates:
+            
+        # calculate manhattan distance between pacman's position and ghost positon 
+        # and if it's less than 3, then return the minimum float value since actions takes the max value
+        if (util.manhattanDistance(ghostState.getPosition(), newPos)) < 2:
+            return -float(inf)
+    
+    # calculates the average of ghost scared times
+    sum = 0
+    for time in newScaredTimes:
+        sum += time
+    
+    avg = sum / len(newScaredTimes)
+
+    # taking reciprocal of distance to food than just the values themselves 
+    return currentGameState.getScore() + (1 / closestFood) + avg
 
 # Abbreviation
 better = betterEvaluationFunction
