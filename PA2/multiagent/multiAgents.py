@@ -146,7 +146,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     
     def minimax(self, gameState: GameState, agentIndex, depth):
-
         # check if the game state is a terminal state
         if (gameState.isWin() or gameState.isLose() or depth == self.depth):
             return "", self.evaluationFunction(gameState)
@@ -158,7 +157,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return self.minValue(gameState, agentIndex, depth)
 
     def maxValue(self, gameState: GameState, agentIndex, depth):
-        #v = -float(inf)
         value = -float(inf)
         action = ""
 
@@ -173,7 +171,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return action, value
 
     def minValue(self, gameState: GameState, agentIndex, depth):
-        #v = float(inf)
         value = float(inf)
         action = ""
 
@@ -231,7 +228,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     
     def alphaBetaMinimax(self, gameState: GameState, agentIndex, depth, alpha, beta):
- 
         # check if the game state is a terminal state
         if (gameState.isWin() or gameState.isLose() or depth == self.depth):
             return "", self.evaluationFunction(gameState)
@@ -310,7 +306,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     """
     
     def expectiMax(self, gameState: GameState, agentIndex, depth):
- 
         # check if the game state is a terminal state
         if (gameState.isWin() or gameState.isLose() or depth == self.depth):
             return "", self.evaluationFunction(gameState)
