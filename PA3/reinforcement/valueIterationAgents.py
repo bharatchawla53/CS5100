@@ -82,8 +82,6 @@ class ValueIterationAgent(ValueEstimationAgent):
                 if self.mdp.isTerminal(s):
                     values.append(0)
                 
-                # track max value for each state
-                #max_value = float("-inf")
                 
                 # get all actions for a state 's'
                 for a in self.mdp.getPossibleActions(s):
