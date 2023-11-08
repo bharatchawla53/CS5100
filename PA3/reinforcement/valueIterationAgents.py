@@ -82,7 +82,6 @@ class ValueIterationAgent(ValueEstimationAgent):
                 if self.mdp.isTerminal(s):
                     values.append(0)
                 
-                
                 # get all actions for a state 's'
                 for a in self.mdp.getPossibleActions(s):
                     
@@ -95,9 +94,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                 # update the dictionary with max value for a state 's'
                 newValues[s] = maxValue
         
-            self.values = newValues
-           
-            
+            self.values = newValues       
 
     def getValue(self, state):
         """
