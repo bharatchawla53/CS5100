@@ -55,6 +55,8 @@ class PerceptronModel(object):
         "*** YOUR CODE HERE ***"
         
         while True:
+            
+            # flag to check if 100% accuracy is achieved in training
             terminate = True
             
             # loop over dataset until perceptron converges 
@@ -83,6 +85,19 @@ class RegressionModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        
+        # initialize batch size 
+        self.batch_size = 50
+        
+        # initialize learning rate 
+        self.alpha = -0.03
+        
+        # initialize one hidden layer with two linear layers in total 
+        self.w1 = nn.Parameter(1, 60)
+        self.b1 = nn.Parameter(1, 60)
+        
+        self.w2 = nn.Parameter(60, 1)
+        self.b2 = nn.Parameter(1, 1)
 
     def run(self, x):
         """
@@ -94,6 +109,21 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** YOUR CODE HERE ***"
+        
+        # apply linear transformation to first layer
+        xw1 = nn.Linear(x, self.w1)
+        
+        # apply ReLU and add bias to each feature vector
+        r1 = nn.ReLU(nn.AddBias(xw1, self.b1))
+        
+        # apply linear transformation to second layer
+        xw2 = nn.Linear(r1, self.w2)
+        
+        # add bias to each feature vector
+        r2 = nn.AddBias(xw2, self.b2)
+        
+        # returns predicted y-values
+        return r2
 
     def get_loss(self, x, y):
         """
@@ -106,12 +136,48 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        
+        # calculate loss using square loss function against the predicted values by the network
+        return nn.SquareLoss(self.run(x), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        
+        while True:
+            
+            # flag to check if loss is less than 0.02 or better 
+            terminate = True
+            
+            # loop over dataset until perceptron converges 
+            for x, y in dataset.iterate_once(self.batch_size):
+            
+                # get loss
+                squared_loss = self.get_loss(x, y)
+                
+                # get gradients based off the loss with respect to the model parameters
+                gradients = nn.gradients(squared_loss, (self.w1, self.b1, self.w2, self.b2))
+                
+                #print(gradients)
+                
+                # perform weights update
+                self.w1.update(gradients[0], self.alpha)
+                self.b1.update(gradients[1], self.alpha)
+                self.w2.update(gradients[2], self.alpha)
+                self.b2.update(gradients[3], self.alpha)
+                   
+                # update the flag based off the average loss
+                #print(dataset.x)
+                if (nn.as_scalar(self.get_loss(nn.Constant(dataset.x), nn.Constant(dataset.y))) > 0.02):
+                    terminate = False
+                    
+            # break if no updates happened
+            if terminate:
+                break
+        
+        
 
 class DigitClassificationModel(object):
     """
