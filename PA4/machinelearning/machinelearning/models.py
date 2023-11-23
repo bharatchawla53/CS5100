@@ -90,7 +90,7 @@ class RegressionModel(object):
         self.batch_size = 50
         
         # initialize learning rate 
-        self.alpha = -0.03
+        self.alpha = 0.03
         
         # initialize one hidden layer with two linear layers in total 
         self.w1 = nn.Parameter(1, 60)
@@ -163,10 +163,10 @@ class RegressionModel(object):
                 #print(gradients)
                 
                 # perform weights update
-                self.w1.update(gradients[0], self.alpha)
-                self.b1.update(gradients[1], self.alpha)
-                self.w2.update(gradients[2], self.alpha)
-                self.b2.update(gradients[3], self.alpha)
+                self.w1.update(gradients[0], -self.alpha)
+                self.b1.update(gradients[1], -self.alpha)
+                self.w2.update(gradients[2], -self.alpha)
+                self.b2.update(gradients[3], -self.alpha)
                    
                 # update the flag based off the average loss
                 #print(dataset.x)
@@ -196,6 +196,19 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        
+        # initialize batch size 
+        self.batch_size = 100
+        
+        # initialize learning rate 
+        self.alpha = 0.5
+        
+        # initialize one hidden layer with two linear layers in total 
+        self.w1 = nn.Parameter(784, 200)
+        self.b1 = nn.Parameter(1, 200)
+        
+        self.w2 = nn.Parameter(200, 10)
+        self.b2 = nn.Parameter(1, 10)
 
     def run(self, x):
         """
@@ -212,6 +225,21 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        
+        # apply linear transformation to first layer
+        xw1 = nn.Linear(x, self.w1)
+        
+        # apply ReLU and add bias to each feature vector
+        r1 = nn.ReLU(nn.AddBias(xw1, self.b1))
+        
+        # apply linear transformation to second layer
+        xw2 = nn.Linear(r1, self.w2)
+        
+        # add bias to each feature vector
+        r2 = nn.AddBias(xw2, self.b2)
+        
+        # returns predicted y-values
+        return r2
 
     def get_loss(self, x, y):
         """
@@ -227,12 +255,49 @@ class DigitClassificationModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        
+        # calculate loss using softmax loss function against the predicted values by the network
+        return nn.SoftmaxLoss(self.run(x), y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        
+        while True:
+            
+            # flag to check if the model accuracy is atleast 97%
+            terminate = False
+            
+            # loop over dataset until perceptron converges 
+            for x, y in dataset.iterate_once(self.batch_size):
+            
+                # get loss
+                softmax_loss = self.get_loss(x, y)
+                
+                # get gradients based off the loss with respect to the model parameters
+                gradients = nn.gradients(softmax_loss, (self.w1, self.b1, self.w2, self.b2))
+                
+                #print(gradients)
+                
+                # perform weights update
+                self.w1.update(gradients[0], -self.alpha)
+                self.b1.update(gradients[1], -self.alpha)
+                self.w2.update(gradients[2], -self.alpha)
+                self.b2.update(gradients[3], -self.alpha)
+                   
+                # update the flag based off the average loss
+                #print(dataset.get_validation_accuracy())
+
+                if (dataset.get_validation_accuracy() >= 0.975):
+                    terminate = True
+                    break
+                    
+            # break if no updates happened
+            if terminate:
+                break
+        
 
 class LanguageIDModel(object):
     """
