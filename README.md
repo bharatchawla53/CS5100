@@ -1,1 +1,1 @@
-# CS5100
+# CS5100 - Foundations of Artifical Intelligence 
